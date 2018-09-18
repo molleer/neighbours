@@ -85,7 +85,7 @@ public class Neighbours extends Application {
 
     //Shuffles all unsatisfied actors to new positions in the matrix
     private void shuffleUnsatisfied(Actor[][] world) {
-
+        //TODO
     }
 
     private void shuffle(Actor[][] world) {
@@ -131,7 +131,7 @@ public class Neighbours extends Application {
         for (int row = 0; row < result.length; row++) {
             for (int col = 0; col < result[row].length; col++) {
                 if (world[row][col] == Actor.NONE) {
-                    result[row][col] = State.NA;
+                    result[row][col] = State.NA; //NA is the default value for an actor of the type NONE
                 } else {
                     isSatisfied = isSatisfied(getNeighbors(world, col, row), threshold, world[row][col]);
                     if (isSatisfied) {
@@ -163,8 +163,7 @@ public class Neighbours extends Application {
                     nUnsat++;
                 }
             }
-            //TODO is an actor happy with no neighbors?
-            nRelevantNeighbors = nSat + nUnsat;
+            nRelevantNeighbors = nSat + nUnsat; //NONE neighbors are disregarded
             ratio = (double) nSat / (double) nRelevantNeighbors;
             if (nUnsat == 0 && nSat == 0 || ratio >= threshold) {
                 return true;
@@ -178,39 +177,29 @@ public class Neighbours extends Application {
     private Actor[] getNeighbors(Actor[][] world, int col, int row) {
         ArrayList<Actor> neighbors = new ArrayList();
         Actor[] result;
-
         if (col - 1 >= 0) {
-            //left
-            neighbors.add(world[row][col - 1]);
+            neighbors.add(world[row][col - 1]); //left
             if (row + 1 < world.length) {
-                //down,left
-                neighbors.add(world[row + 1][col - 1]);
+                neighbors.add(world[row + 1][col - 1]); //down,left
             }
             if (row - 1 >= 0) {
-                //up, left
-                neighbors.add(world[row - 1][col - 1]);
+                neighbors.add(world[row - 1][col - 1]); //up, left
             }
         }
-
         if (col + 1 < world[row].length) {
-            //right
-            neighbors.add(world[row][col + 1]);
+            neighbors.add(world[row][col + 1]); //right
             if (row - 1 >= 0) {
-                //up, right
-                neighbors.add(world[row - 1][col + 1]);
+                neighbors.add(world[row - 1][col + 1]); //up, right
             }
             if (row + 1 < world.length) {
-                //down,right
-                neighbors.add(world[row + 1][col + 1]);
+                neighbors.add(world[row + 1][col + 1]);  //down,right
             }
         }
         if (row - 1 >= 0) {
-            //up
-            neighbors.add(world[row - 1][col]);
+            neighbors.add(world[row - 1][col]); //up
         }
         if (row + 1 < world.length) {
-            //down
-            neighbors.add(world[row + 1][col]);
+            neighbors.add(world[row + 1][col]); //down
         }
         result = new Actor[neighbors.size()];
         for (int i = 0; i < neighbors.size(); i++) {
@@ -219,7 +208,7 @@ public class Neighbours extends Application {
         return result;
     }
 
-    //Creates a world
+    //Creates a matrix containing Actors according to the specified distribution and amount
     private Actor[][] createWorld(double[] distribution, int nLocations) {
         Actor[][] result;
         int worldSize, maxRed, maxBlue, maxNone;
@@ -233,10 +222,9 @@ public class Neighbours extends Application {
         worldSize = (int) Math.round(Math.sqrt(nLocations));
         result = new Actor[worldSize][worldSize];
 
-        //TODO will need to shuffle the matrix after creation
         for (int row = 0; row < result.length; row++) {
             for (int col = 0; col < result.length; col++) {
-                //First add all red actors, then all blue actors and finally all "none" actors
+                //First add all red actors, then all blue actors and then finally all "none" actors
                 if (nRed < maxRed) {
                     result[row][col] = Actor.RED;
                     nRed++;
@@ -340,6 +328,7 @@ public class Neighbours extends Application {
         System.out.println("Nones: " + n);
         System.out.println("---");
 
+        //Prints the state of all of the actors in the world
         State[][] states = getStates(world, 0.7);
         for (int row = 0; row < states.length; row++) {
             for (int col = 0; col < states[row].length; col++) {
