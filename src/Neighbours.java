@@ -214,21 +214,44 @@ public class Neighbours extends Application {
     // to see that they really work
     private void test() {
         // A small hard coded world for testing
-//        Actor[][] testWorld = new Actor[][]{
-//                {Actor.RED, Actor.RED, Actor.NONE},
-//                {Actor.NONE, Actor.BLUE, Actor.NONE},
-//                {Actor.RED, Actor.NONE, Actor.BLUE}
-//        };
-//        double th = 0.5;   // Simple threshold used for testing
-//        int size = testWorld.length;
+        Actor[][] testWorld = new Actor[][]{
+                {Actor.RED, Actor.RED, Actor.NONE},
+                {Actor.NONE, Actor.BLUE, Actor.NONE},
+                {Actor.RED, Actor.NONE, Actor.BLUE}
+        };
+        double th = 0.5;   // Simple threshold used for testing
+        int size = testWorld.length;
         double[] dist = {0.25, 0.25, 0.50};
 
 
         // TODO test methods
-        Actor[][] testWorld = createWorld(dist, 900);
+        //Actor[][] testWorld = createWorld(dist, 900);
+        for(int row=0; row<testWorld.length; row++) {
+            for (int col = 0; col < testWorld[row].length; col++)
+                if(testWorld[row][col]==Actor.BLUE)
+                    System.out.print("B ");
+                else if(testWorld[row][col]==Actor.RED)
+                    System.out.print("R ");
+                else
+                    System.out.print("N ");
+            System.out.println();
+        }
+
+        boolean[][] satisfied = getStates(testWorld,th);
+
+        for(int row=0; row<satisfied.length; row++) {
+            for (int col = 0; col < satisfied[row].length; col++)
+                if(satisfied[row][col])
+                    System.out.print("X ");
+                else
+                    System.out.print("O ");
+
+            System.out.println();
+        }
 
 
-        exit(0);
+                exit(0);
+
     }
 
     // Helper method for testing (NOTE: reference equality)
