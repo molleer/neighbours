@@ -7,6 +7,7 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
 
@@ -46,6 +47,7 @@ public class Neighbours extends Application {
     private final double margin = 50;
     private double dotSize;
     private Actor[][] world;  // The world is a square matrix of Actors
+    // world[row][col]
 
     public static void main(String[] args) {
         launch(args);
@@ -56,7 +58,7 @@ public class Neighbours extends Application {
     // Don't care about "@Override" and "public" (just accept for now)
     @Override
     public void init() {
-        //test();    // <---------------- Uncomment to TEST!
+        test();    // <---------------- Uncomment to TEST!
 
         // %-distribution of RED, BLUE and NONE
         double[] dist = {0.25, 0.25, 0.50};
@@ -89,17 +91,79 @@ public class Neighbours extends Application {
 
     //returns a matrix that displays the current state of each actor in the parameter world
     private boolean[][] getStates(Actor[][] world, double threshold) {
-        return null;
+        boolean[][] ans = new boolean[world.length][world[0].length];
+
+        for (int row = 0; row < ans.length; row++)
+            for (int col = 0; col < ans[0].length; col++)
+                if (isSatisfied(getNeighbors(world, col, row), threshold, world[row][col]))
+                    ans[row][col] = true;
+                else
+                    ans[row][col] = false;
+
+        return ans;
     }
 
     //indicates whether or not a specific Actor is satisfied
-    private boolean isSatisfied(Actor[] neighbors, double threshold) {
-        return false;
+    private boolean isSatisfied(Actor[] neighbors, double threshold, Actor actor) {
+        if (actor == Actor.NONE)
+            return false;
+
+        int sat, nSat;
+        sat = nSat = 0;
+
+        for (Actor i : neighbors)
+            if (i == Actor.NONE)
+                continue;
+            else if (actor == Actor.BLUE && i == Actor.BLUE || actor == Actor.RED && i == Actor.RED)
+                sat++;
+            else
+                nSat++;
+
+        if (nSat == 0 && sat == 0)
+            return true;
+        else if (sat / ((double) sat + nSat) >= threshold)
+            return true;
+        else
+            return false;
     }
 
     //Returns the neighbors of the actor at the specified coordinates as an array
     private Actor[] getNeighbors(Actor[][] world, int col, int row) {
-        return null;
+        ArrayList<Actor> neiBr = new ArrayList();
+        if (col - 1 >= 0) {
+            //left
+
+            neiBr.add(world[row][col - 1]);
+            if (row + 1 < world.length)
+                //down,left
+                neiBr.add(world[row + 1][col - 1]);
+            if (row - 1 >= 0)
+                //up, left
+                neiBr.add(world[row - 1][col - 1]);
+        }
+
+        if (col + 1 < world[0].length) {
+            //right
+            neiBr.add(world[row][col + 1]);
+            if (row - 1 >= 0)
+                //up, right
+                neiBr.add(world[row - 1][col + 1]);
+            if (row + 1 < world.length)
+                //down,right
+                neiBr.add(world[row + 1][col + 1]);
+        }
+        if (row - 1 >= 0)
+            //up
+            neiBr.add(world[row - 1][col]);
+        if (row + 1 < world.length)
+            //down
+            neiBr.add(world[row + 1][col]);
+
+        Actor[] ans = new Actor[neiBr.size()];
+        for(int i=0; i<neiBr.size(); i++)
+            ans[i] = neiBr.get(i);
+
+        return ans;
     }
 
     //Creates a world
