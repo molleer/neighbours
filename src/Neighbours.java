@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
 
+import static java.lang.Math.max;
 import static java.lang.Math.round;
 import static java.lang.Math.sqrt;
 import static java.lang.System.*;
@@ -167,8 +168,44 @@ public class Neighbours extends Application {
     }
 
     //Creates a world
-    private Actor[][] createWorld(double distribution, int nLocations) {
-        return null;
+    private Actor[][] createWorld(double[] distribution, int nLocations) {
+        Actor[][] result;
+        int worldSize, maxRed, maxBlue, maxNone;
+        int nRed = 0, nBlue = 0, nNone = 0;
+
+        //distribution: 0 = RED, 1 = BLUE, 2 = NONE
+        maxRed = (int) Math.round(distribution[0] * nLocations);
+        maxBlue = (int) Math.round(distribution[1] * nLocations);
+        maxNone = (int) Math.round(distribution[2] * nLocations);
+
+        worldSize = (int) Math.round(Math.sqrt(nLocations));
+        result = new Actor[worldSize][worldSize];
+
+        //TODO will need to shuffle the matrix after creation
+        for (int row = 0; row < result.length; row++) {
+            for (int col = 0; col < result.length; col++) {
+                //First add all red actors, then all blue actors and finally all "none" actors
+                if (nRed < maxRed) {
+                    result[row][col] = Actor.RED;
+                    nRed++;
+                } else if (nBlue < maxBlue) {
+                    result[row][col] = Actor.BLUE;
+                    nBlue++;
+                } else if (nNone < maxNone) {
+                    result[row][col] = Actor.NONE;
+                    nNone++;
+                }
+            }
+        }
+        System.out.println("World size: " + worldSize);
+        System.out.println("maxRed: " + maxRed + "   | nRed: " + nRed);
+        System.out.println("maxBlue: " + maxBlue + "  | nBlue: " + nBlue);
+        System.out.println("maxNone: " + maxNone + " | nNone: " + nNone);
+        return result;
+    }
+
+    private void shuffle(Actor[][] world) {
+
     }
 
     // ------- Testing -------------------------------------
@@ -177,15 +214,19 @@ public class Neighbours extends Application {
     // to see that they really work
     private void test() {
         // A small hard coded world for testing
-        Actor[][] testWorld = new Actor[][]{
-                {Actor.RED, Actor.RED, Actor.NONE},
-                {Actor.NONE, Actor.BLUE, Actor.NONE},
-                {Actor.RED, Actor.NONE, Actor.BLUE}
-        };
-        double th = 0.5;   // Simple threshold used for testing
-        int size = testWorld.length;
+//        Actor[][] testWorld = new Actor[][]{
+//                {Actor.RED, Actor.RED, Actor.NONE},
+//                {Actor.NONE, Actor.BLUE, Actor.NONE},
+//                {Actor.RED, Actor.NONE, Actor.BLUE}
+//        };
+//        double th = 0.5;   // Simple threshold used for testing
+//        int size = testWorld.length;
+        double[] dist = {0.25, 0.25, 0.50};
+
 
         // TODO test methods
+        Actor[][] testWorld = createWorld(dist, 900);
+
 
         exit(0);
     }
