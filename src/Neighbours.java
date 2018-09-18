@@ -92,40 +92,44 @@ public class Neighbours extends Application {
 
     //returns a matrix that displays the current state of each actor in the parameter world
     private boolean[][] getStates(Actor[][] world, double threshold) {
-        boolean[][] ans = new boolean[world.length][world[0].length];
+        boolean[][] result = new boolean[world.length][world.length]; //assuming the matrix is symmetrical
 
-        for (int row = 0; row < ans.length; row++)
-            for (int col = 0; col < ans[0].length; col++)
-                if (isSatisfied(getNeighbors(world, col, row), threshold, world[row][col]))
-                    ans[row][col] = true;
-                else
-                    ans[row][col] = false;
-
-        return ans;
+        for (int row = 0; row < result.length; row++)
+            for (int col = 0; col < result[row].length; col++)
+                if (isSatisfied(getNeighbors(world, col, row), threshold, world[row][col])) {
+                    result[row][col] = true;
+                } else {
+                    result[row][col] = false;
+                }
+        return result;
     }
 
     //indicates whether or not a specific Actor is satisfied
     private boolean isSatisfied(Actor[] neighbors, double threshold, Actor actor) {
-        if (actor == Actor.NONE)
+        int nSat, nUnsat; //number of satisfied actors / number of unsatisfied actors
+        int nRelevantNeighbors;
+        double ratio;
+        if (actor == Actor.NONE) {
             return false;
-
-        int sat, nSat;
-        sat = nSat = 0;
-
-        for (Actor i : neighbors)
-            if (i == Actor.NONE)
-                continue;
-            else if (actor == Actor.BLUE && i == Actor.BLUE || actor == Actor.RED && i == Actor.RED)
-                sat++;
-            else
-                nSat++;
-
-        if (nSat == 0 && sat == 0)
-            return true;
-        else if (sat / ((double) sat + nSat) >= threshold)
-            return true;
-        else
-            return false;
+        } else {
+            nSat = nUnsat = 0;
+            for (Actor a : neighbors)
+                if (a == Actor.NONE) {
+                    continue;
+                } else if (actor == Actor.BLUE && a == Actor.BLUE || actor == Actor.RED && a == Actor.RED) {
+                    nSat++;
+                } else {
+                    nUnsat++;
+                }
+            //TODO is an actor happy with no neighbors?
+            nRelevantNeighbors = nSat + nUnsat;
+            ratio = (double) nSat / (double) nRelevantNeighbors;
+            if (nUnsat == 0 && nSat == 0 || ratio >= threshold) {
+                return true;
+            } else {
+                return false;
+            }
+        }
     }
 
     //Returns the neighbors of the actor at the specified coordinates as an array
@@ -143,7 +147,7 @@ public class Neighbours extends Application {
                 neiBr.add(world[row - 1][col - 1]);
         }
 
-        if (col + 1 < world[0].length) {
+        if (col + 1 < world[row].length) {
             //right
             neiBr.add(world[row][col + 1]);
             if (row - 1 >= 0)
@@ -161,7 +165,7 @@ public class Neighbours extends Application {
             neiBr.add(world[row + 1][col]);
 
         Actor[] ans = new Actor[neiBr.size()];
-        for(int i=0; i<neiBr.size(); i++)
+        for (int i = 0; i < neiBr.size(); i++)
             ans[i] = neiBr.get(i);
 
         return ans;
