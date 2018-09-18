@@ -27,12 +27,12 @@ import static java.lang.System.*;
 public class Neighbours extends Application {
 
     // Enumeration type for the Actors
-    enum Actor {
+    private enum Actor {
         BLUE, RED, NONE   // NONE used for empty locations
     }
 
     // Enumeration type for the state of an Actor
-    enum State {
+    private enum State {
         UNSATISFIED,
         SATISFIED,
         NA     // Not applicable (NA), used for NONEs
@@ -40,14 +40,15 @@ public class Neighbours extends Application {
 
     // Below is the *only* accepted instance variable (i.e. variables outside any method)
     // This variable may *only* be used in methods init() and updateWorld()
-    Actor[][] world;              // The world is a square matrix of Actors
+    private double width = 400, height = 400; // Size for window
+    private final long interval = 450000000;
+    private long previousTime = nanoTime();
+    private final double margin = 50;
+    private double dotSize;
+    private Actor[][] world;  // The world is a square matrix of Actors
 
-    // This is the method called by the timer to update the world
-    // (i.e move unsatisfied) approx each 1/60 sec.
-    void updateWorld() {
-        // % of surrounding neighbours that are like me
-        final double threshold = 0.7;
-       // TODO
+    public static void main(String[] args) {
+        launch(args);
     }
 
     // This method initializes the world variable with a random distribution of Actors
@@ -68,24 +69,49 @@ public class Neighbours extends Application {
         fixScreenSize(nLocations);
     }
 
+    // This is the method called by the timer to update the world
+    // (i.e move unsatisfied) approx each 1/60 sec.
+    private void updateWorld() {
+        // % of surrounding neighbours that are like me
+        final double threshold = 0.7;
+        // TODO
+    }
+
 
     // ------- Methods ------------------
 
     // TODO write the methods here, implement/test bottom up
 
+    //Shuffles all unsatisfied actors to new positions in the matrix
+    private void shuffleUnsatisfied(Actor[][] world) {
 
+    }
 
+    //returns a matrix that displays the current state of each actor in the parameter world
+    private boolean[][] getStates(Actor[][] world, double threshold) {
+        return null;
+    }
 
+    //indicates whether or not a specific Actor is satisfied
+    private boolean isSatisfied(Actor[] neighbors, double threshold) {
+        return false;
+    }
 
+    //Returns the neighbors of the actor at the specified coordinates as an array
+    private Actor[] getNeighbors(Actor[][] world, int col, int row) {
+        return null;
+    }
 
-
-
+    //Creates a world
+    private Actor[][] createWorld(double distribution, int nLocations) {
+        return null;
+    }
 
     // ------- Testing -------------------------------------
 
     // Here you run your tests i.e. call your logic methods
     // to see that they really work
-    void test() {
+    private void test() {
         // A small hard coded world for testing
         Actor[][] testWorld = new Actor[][]{
                 {Actor.RED, Actor.RED, Actor.NONE},
@@ -101,7 +127,7 @@ public class Neighbours extends Application {
     }
 
     // Helper method for testing (NOTE: reference equality)
-    <T> int count(T[] arr, T toFind) {
+    private <T> int count(T[] arr, T toFind) {
         int count = 0;
         for (int i = 0; i < arr.length; i++) {
             if (arr[i] == toFind) {
@@ -113,14 +139,7 @@ public class Neighbours extends Application {
 
     // *****   NOTHING to do below this row, it's JavaFX stuff  ******
 
-    double width = 400;   // Size for window
-    double height = 400;
-    long previousTime = nanoTime();
-    final long interval = 450000000;
-    double dotSize;
-    final double margin = 50;
-
-    void fixScreenSize(int nLocations) {
+    private void fixScreenSize(int nLocations) {
         // Adjust screen window depending on nLocations
         dotSize = (width - 2 * margin) / sqrt(nLocations);
         if (dotSize < 1) {
@@ -158,7 +177,6 @@ public class Neighbours extends Application {
         timer.start();  // Start simulation
     }
 
-
     // Render the state of the world to the screen
     public void renderWorld(GraphicsContext g, Actor[][] world) {
         g.clearRect(0, 0, width, height);
@@ -179,9 +197,4 @@ public class Neighbours extends Application {
             }
         }
     }
-
-    public static void main(String[] args) {
-        launch(args);
-    }
-
 }
