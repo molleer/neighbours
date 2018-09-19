@@ -108,50 +108,31 @@ public class Neighbours extends Application {
         }
     }
 
-    //returns a matrix that displays the current state of each actor in the parameter world
-    //TODO: this method might "work", but we should use the enum for State instead
-    /*
-    private boolean[][] getStates(Actor[][] world, double threshold) {
-        boolean[][] result = new boolean[world.length][world.length]; //assuming the matrix is symmetrical
-        for (int row = 0; row < result.length; row++)
-            for (int col = 0; col < result[row].length; col++)
-                if (isSatisfied(getNeighbors(world, col, row), threshold, world[row][col])) {
-                    result[row][col] = true;
-                } else {
-                    result[row][col] = false;
-                }
-        return result;
-    }
-    */
-
     //TODO test this method
     private State[][] getStates(Actor[][] world, double threshold) {
-        boolean isSatisfied;
-        State[][] result = new State[world.length][world.length]; //assuming the matrix is symmetrical
-        for (int row = 0; row < result.length; row++) {
-            for (int col = 0; col < result[row].length; col++) {
-                if (world[row][col] == Actor.NONE) {
-                    result[row][col] = State.NA; //NA is the default value for an actor of the type NONE
-                } else {
-                    isSatisfied = isSatisfied(getNeighbors(world, col, row), threshold, world[row][col]);
-                    if (isSatisfied) {
-                        result[row][col] = State.SATISFIED;
-                    } else {
-                        result[row][col] = State.UNSATISFIED;
-                    }
+        State[][] states = new State[world.length][world.length]; //assuming the matrix is symmetrical
+        for (int row = 0; row < states.length; row++) {
+            for (int col = 0; col < states[row].length; col++) {
+//                System.out.println("Actor value: " + world[row][col]);
+//                System.out.println(Arrays.toString(getNeighbors(world, col, row)));
+//                System.out.println("Threshold: " + threshold);
+                states[row][col] = getState(getNeighbors(world, col, row), threshold, world[row][col]);
+//                System.out.println("Result state: " + states[row][col]);
+
+                if ((world[row][col] == Actor.RED || world[row][col] == Actor.BLUE) && states[row][col] == State.NA) {
+                    System.err.println("FAIL OF LIFE");
                 }
+//                exit(0);
             }
         }
-        return result;
+        return states;
     }
 
-    //indicates whether or not a specific Actor is satisfied
-    private boolean isSatisfied(Actor[] neighbors, double threshold, Actor actor) {
-        int nSat, nUnsat; //number of satisfied actors / number of unsatisfied actors
-        int nRelevantNeighbors;
+    private State getState(Actor[] neighbors, double threshold, Actor actor) {
+        int nSat, nUnsat, nRelevantNeighbors;
         double ratio;
         if (actor == Actor.NONE) {
-            return false;
+            return State.NA;
         } else {
             nSat = nUnsat = 0;
             for (Actor a : neighbors) {
@@ -166,9 +147,9 @@ public class Neighbours extends Application {
             nRelevantNeighbors = nSat + nUnsat; //NONE neighbors are disregarded
             ratio = (double) nSat / (double) nRelevantNeighbors;
             if (nUnsat == 0 && nSat == 0 || ratio >= threshold) {
-                return true;
+                return State.SATISFIED;
             } else {
-                return false;
+                return State.UNSATISFIED;
             }
         }
     }
@@ -252,56 +233,22 @@ public class Neighbours extends Application {
     // Here you run your tests i.e. call your logic methods
     // to see that they really work
     private void test() {
-        // A small hard coded world for testing
-//        Actor[][] testWorld = new Actor[][]{
-//                {Actor.RED, Actor.RED, Actor.NONE},
-//                {Actor.NONE, Actor.BLUE, Actor.NONE},
-//                {Actor.RED, Actor.NONE, Actor.BLUE}
-//        };
-//        double th = 0.5;   // Simple threshold used for testing
-//        int size = testWorld.length;
-//        double[] dist = {0.25, 0.25, 0.50};
-//
-//
-//        // TODO test methods
-//        //Actor[][] testWorld = createWorld(dist, 900);
-//        for (int row = 0; row < testWorld.length; row++) {
-//            for (int col = 0; col < testWorld[row].length; col++)
-//                if (testWorld[row][col] == Actor.BLUE)
-//                    System.out.print("B ");
-//                else if (testWorld[row][col] == Actor.RED)
-//                    System.out.print("R ");
-//                else
-//                    System.out.print("N ");
-//            System.out.println();
-//        }
-//        System.out.println();
-//
-////        boolean[][] satisfied = getStates(testWorld, th);
-//        State[][] states = getStates(testWorld, th);
-//
-//        for (int row = 0; row < states.length; row++) {
-//            for (int col = 0; col < states[row].length; col++) {
-//                if (states[row][col] == State.SATISFIED) {
-//                    System.out.print("S ");
-//                } else if (states[row][col] == State.UNSATISFIED) {
-//                    System.out.print("U ");
-//                } else {
-//                    System.out.println("N"); //NA
-//                }
-//            }
-//            System.out.println();
-//        }
-        double th = 0.5;   // Simple threshold used for testing
-        double[] dist = {0.25, 0.25, 0.50};
+        double threshold = 0.5;
+        double[] dist = {0.25, 0.25, 0.50}; //Red, Blue & None
         Actor[][] world = createWorld(dist, 100);
-
 
         //Prints the world matrix two times, first time: raw, second time: shuffled
         for (int a = 0; a < 2; a++) {
             for (int i = 0; i < world.length; i++) {
                 for (int j = 0; j < world[i].length; j++) {
-                    System.out.print(world[i][j] + " ");
+//                    System.out.print(world[i][j] + " ");
+                    if (world[i][j] == Actor.RED) {
+                        System.out.print("R ");
+                    } else if (world[i][j] == Actor.BLUE) {
+                        System.out.print("B ");
+                    } else {
+                        System.out.print("_ ");
+                    }
                 }
                 System.out.println();
             }
@@ -329,7 +276,7 @@ public class Neighbours extends Application {
         System.out.println("---");
 
         //Prints the state of all of the actors in the world
-        State[][] states = getStates(world, 0.7);
+        State[][] states = getStates(world, threshold);
         for (int row = 0; row < states.length; row++) {
             for (int col = 0; col < states[row].length; col++) {
                 if (states[row][col] == State.UNSATISFIED) {
@@ -337,7 +284,7 @@ public class Neighbours extends Application {
                 } else if (states[row][col] == State.SATISFIED) {
                     System.out.print("S ");
                 } else if (states[row][col] == State.NA) {
-                    System.out.print("N ");
+                    System.out.print("_ ");
                 }
             }
             System.out.println();
@@ -418,3 +365,18 @@ public class Neighbours extends Application {
         }
     }
 }
+//returns a matrix that displays the current state of each actor in the parameter world
+//TODO: this method might "work", but we should use the enum for State instead
+    /*
+    private boolean[][] getStates(Actor[][] world, double threshold) {
+        boolean[][] result = new boolean[world.length][world.length]; //assuming the matrix is symmetrical
+        for (int row = 0; row < result.length; row++)
+            for (int col = 0; col < result[row].length; col++)
+                if (isSatisfied(getNeighbors(world, col, row), threshold, world[row][col])) {
+                    result[row][col] = true;
+                } else {
+                    result[row][col] = false;
+                }
+        return result;
+    }
+    */
