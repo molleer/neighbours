@@ -209,7 +209,7 @@ public class Neighbours extends Application {
     }
 
     private void shuffle(Actor[][] world) {
-
+        
     }
 
     // ------- Testing -------------------------------------
@@ -218,15 +218,17 @@ public class Neighbours extends Application {
     // to see that they really work
     private void test() {
         // A small hard coded world for testing
-        Actor[][] testWorld = new Actor[][]{
+        /*Actor[][] testWorld = new Actor[][]{
                 {Actor.RED, Actor.RED, Actor.NONE},
                 {Actor.NONE, Actor.BLUE, Actor.NONE},
                 {Actor.RED, Actor.NONE, Actor.BLUE}
-        };
-        double th = 0.5;   // Simple threshold used for testing
-        int size = testWorld.length;
-        double[] dist = {0.25, 0.25, 0.50};
+        };*/
 
+        double th = 0.5;   // Simple threshold used for testing
+
+        //int size = testWorld.length;
+        double[] dist = {0.25, 0.25, 0.50};
+        Actor[][] testWorld=createWorld(dist,100);
 
         // TODO test methods
         //Actor[][] testWorld = createWorld(dist, 900);
@@ -241,6 +243,7 @@ public class Neighbours extends Application {
             System.out.println();
         }
 
+        System.out.println('\n');
         boolean[][] satisfied = getStates(testWorld,th);
 
         for(int row=0; row<satisfied.length; row++) {
