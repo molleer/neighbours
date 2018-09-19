@@ -36,11 +36,12 @@ public class Neighbours extends Application {
 
     // Below is the *only* accepted instance variable (i.e. variables outside any method)
     // This variable may *only* be used in methods init() and updateWorld()
-    private double width = 400, height = 400; // Size for window
-    private final long interval = 450000000;
+    private double width = 800, height = 800; // Size for window
+    private final long interval = 450_000_000;
     private long previousTime = nanoTime();
     private final double margin = 50;
     private double dotSize;
+    private Actor[][] world;
 
     public static void main(String[] args) {
         launch(args);
@@ -51,14 +52,14 @@ public class Neighbours extends Application {
     // Don't care about "@Override" and "public" (just accept for now)
     @Override
     public void init() {
-        test();    // <---------------- Uncomment to TEST!
+        //test();    // <---------------- Uncomment to TEST!
 
         // %-distribution of RED, BLUE and NONE
         double[] dist = {0.25, 0.25, 0.50};
         // Number of locations (places) in world (square)
-        int nLocations = 900;
-
-        // TODO
+        int nLocations = 90_000;
+        world = createWorld(dist,nLocations);
+        shuffle(world);
 
         // Should be last
         fixScreenSize(nLocations);
@@ -68,24 +69,34 @@ public class Neighbours extends Application {
     // (i.e move unsatisfied) approx each 1/60 sec.
     private void updateWorld() {
         final double threshold = 0.7; // % of surrounding neighbours that are like me
+        State[][] states = getStates(world,threshold);
+        ArrayList<Actor> moving = new ArrayList();
+        Random rand = new Random();
+        int temp;
 
         //TODO copied matrix, logic stuff
         for (int row = 0; row < world.length; row++) {
             for (int col = 0; col < world[row].length; col++) {
-                //update
+                if(states[row][col]==State.NA||states[row][col]==State.UNSATISFIED)
+                    moving.add(world[row][col]);
+            }
+        }
+
+        for (int row = 0; row < world.length; row++) {
+            for (int col = 0; col < world[row].length; col++) {
+                if(states[row][col]==State.NA||states[row][col]==State.UNSATISFIED)
+                {
+                    temp = rand.nextInt(moving.size());
+                    world[row][col]=moving.get(temp);
+                    moving.remove(temp);
+                }
+
             }
         }
     }
 
 
     // ------- Methods ------------------
-
-    // TODO write the methods here, implement/test bottom up
-
-    //Shuffles all unsatisfied actors to new positions in the matrix
-    private void shuffleUnsatisfied(Actor[][] world) {
-        //TODO
-    }
 
     private void shuffle(Actor[][] world) {
         Random rnd;
@@ -109,8 +120,7 @@ public class Neighbours extends Application {
 
     //returns a matrix that displays the current state of each actor in the parameter world
     //TODO: this method might "work", but we should use the enum for State instead
-    /*
-    private boolean[][] getStates(Actor[][] world, double threshold) {
+    /*private boolean[][] getStates(Actor[][] world, double threshold) {
         boolean[][] result = new boolean[world.length][world.length]; //assuming the matrix is symmetrical
         for (int row = 0; row < result.length; row++)
             for (int col = 0; col < result[row].length; col++)
@@ -120,8 +130,7 @@ public class Neighbours extends Application {
                     result[row][col] = false;
                 }
         return result;
-    }
-    */
+    }*/
 
     //TODO test this method
     private State[][] getStates(Actor[][] world, double threshold) {
@@ -245,136 +254,13 @@ public class Neighbours extends Application {
         return result;
     }
 
-<<<<<<< HEAD
-    private void shuffle(Actor[][] world) {
-        
-    }
-=======
->>>>>>> d2f9a1e7751cf4db443b6c047cab27133448bfac
 
     // ------- Testing -------------------------------------
 
     // Here you run your tests i.e. call your logic methods
     // to see that they really work
     private void test() {
-        // A small hard coded world for testing
-<<<<<<< HEAD
-        /*Actor[][] testWorld = new Actor[][]{
-                {Actor.RED, Actor.RED, Actor.NONE},
-                {Actor.NONE, Actor.BLUE, Actor.NONE},
-                {Actor.RED, Actor.NONE, Actor.BLUE}
-        };*/
 
-        double th = 0.5;   // Simple threshold used for testing
-=======
-//        Actor[][] testWorld = new Actor[][]{
-//                {Actor.RED, Actor.RED, Actor.NONE},
-//                {Actor.NONE, Actor.BLUE, Actor.NONE},
-//                {Actor.RED, Actor.NONE, Actor.BLUE}
-//        };
-//        double th = 0.5;   // Simple threshold used for testing
-//        int size = testWorld.length;
-//        double[] dist = {0.25, 0.25, 0.50};
-//
-//
-//        // TODO test methods
-//        //Actor[][] testWorld = createWorld(dist, 900);
-//        for (int row = 0; row < testWorld.length; row++) {
-//            for (int col = 0; col < testWorld[row].length; col++)
-//                if (testWorld[row][col] == Actor.BLUE)
-//                    System.out.print("B ");
-//                else if (testWorld[row][col] == Actor.RED)
-//                    System.out.print("R ");
-//                else
-//                    System.out.print("N ");
-//            System.out.println();
-//        }
-//        System.out.println();
-//
-////        boolean[][] satisfied = getStates(testWorld, th);
-//        State[][] states = getStates(testWorld, th);
-//
-//        for (int row = 0; row < states.length; row++) {
-//            for (int col = 0; col < states[row].length; col++) {
-//                if (states[row][col] == State.SATISFIED) {
-//                    System.out.print("S ");
-//                } else if (states[row][col] == State.UNSATISFIED) {
-//                    System.out.print("U ");
-//                } else {
-//                    System.out.println("N"); //NA
-//                }
-//            }
-//            System.out.println();
-//        }
-        double th = 0.5;   // Simple threshold used for testing
-        double[] dist = {0.25, 0.25, 0.50};
-        Actor[][] world = createWorld(dist, 100);
->>>>>>> d2f9a1e7751cf4db443b6c047cab27133448bfac
-
-        //int size = testWorld.length;
-        double[] dist = {0.25, 0.25, 0.50};
-        Actor[][] testWorld=createWorld(dist,100);
-
-        //Prints the world matrix two times, first time: raw, second time: shuffled
-        for (int a = 0; a < 2; a++) {
-            for (int i = 0; i < world.length; i++) {
-                for (int j = 0; j < world[i].length; j++) {
-                    System.out.print(world[i][j] + " ");
-                }
-                System.out.println();
-            }
-            System.out.println("---");
-            shuffle(world);
-        }
-
-<<<<<<< HEAD
-        System.out.println('\n');
-        boolean[][] satisfied = getStates(testWorld,th);
-
-        for(int row=0; row<satisfied.length; row++) {
-            for (int col = 0; col < satisfied[row].length; col++)
-                if(satisfied[row][col])
-                    System.out.print("X ");
-                else
-                    System.out.print("O ");
-
-=======
-        //Checks whether the distribution is still correct
-        int r = 0, b = 0, n = 0;
-        for (int i = 0; i < world.length; i++) {
-            for (int j = 0; j < world[i].length; j++) {
-                if (world[i][j] == Actor.RED) {
-                    r++;
-                } else if (world[i][j] == Actor.BLUE) {
-                    b++;
-                } else if (world[i][j] == Actor.NONE) {
-                    n++;
-                }
-            }
-        }
-        System.out.println("(After shuffle)");
-        System.out.println("Reds:  " + r);
-        System.out.println("Blues: " + b);
-        System.out.println("Nones: " + n);
-        System.out.println("---");
-
-        //Prints the state of all of the actors in the world
-        State[][] states = getStates(world, 0.7);
-        for (int row = 0; row < states.length; row++) {
-            for (int col = 0; col < states[row].length; col++) {
-                if (states[row][col] == State.UNSATISFIED) {
-                    System.out.print("U ");
-                } else if (states[row][col] == State.SATISFIED) {
-                    System.out.print("S ");
-                } else if (states[row][col] == State.NA) {
-                    System.out.print("N ");
-                }
-            }
->>>>>>> d2f9a1e7751cf4db443b6c047cab27133448bfac
-            System.out.println();
-        }
-
-        exit(0);
     }
 
     // Helper method for testing (NOTE: reference equality)
