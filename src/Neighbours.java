@@ -24,10 +24,9 @@ public class Neighbours extends Application {
         UNSATISFIED, SATISFIED, NA // Not applicable (NA), used for NONEs
     }
 
-    private double width = 400, height = 400; // Size for window
     private final long interval = 200_000_000;
     private long previousTime = System.nanoTime();
-    //    private final double margin = 50;
+    private final double width = 400, height = 400;
     private double dotSize;
     private Actor[][] world;
 
@@ -38,9 +37,8 @@ public class Neighbours extends Application {
     // This method initializes the world variable with a random distribution of Actors
     @Override
     public void init() {
-        double[] dist = {0.55, 0.35, 0.10}; // %-distribution of RED, BLUE and NONE
-        int nLocations = 90_000;  // Number of locations (places) in world (square)
-
+        double[] dist = {0.50, 0.30, 0.20}; // %-distribution of RED, BLUE and NONE
+        int nLocations = 90_000;  // Number of positions in world
         world = createWorld(dist, nLocations);
         shuffle(world);
         calculateDotSize(nLocations);
@@ -48,48 +46,50 @@ public class Neighbours extends Application {
 
     // This is the method called by the timer to update the world
     private void updateWorld() {
-        final double threshold = 0.625;
+        final double threshold = 0.750;
         State[][] states = getStates(world, threshold);
         shuffleUnsatisfied(world, states); //convert all unsatisfied actors into an array
     }
 
-    //Shuffles all unsatisfied actors to new positions in the matrix
-    //TODO see if this could be improved and made more efficient
+    //Make this return a new matrix
     private void shuffleUnsatisfied(Actor[][] matrix, State[][] states) {
         Random rnd;
         Actor temp;
-        ArrayList<Point> openList;
-        int rndIndex;
-        if (matrix != null) {
-            openList = new ArrayList();
+        ArrayList<Point> nonePositions, unsatisfiedPositions;
+        int rndIndex, rndRow, rndCol;
+
+        if (matrix != null && states != null) {
+            nonePositions = new ArrayList();
+            unsatisfiedPositions = new ArrayList();
             rnd = new Random();
+
+            //Retrieves the positions of all NONE and UNSATISFIED actors
             for (int row = 0; row < matrix.length; row++) {
                 for (int col = 0; col < matrix[row].length; col++) {
-                    if (matrix[row][col] == Actor.NONE || states[row][col] == State.UNSATISFIED
-                            || states[row][col] == State.NA) {
-                        openList.add(new Point(col, row));
+                    if (matrix[row][col] == Actor.NONE) {
+                        nonePositions.add(new Point(col, row));
+                    }
+                    if (states[row][col] == State.UNSATISFIED) {
+                        unsatisfiedPositions.add(new Point(col, row));
                     }
                 }
             }
-            for (int row = 0; row < matrix.length; row++) {
-                for (int col = 0; col < matrix[row].length; col++) {
-                    if (matrix[row][col] == Actor.NONE || states[row][col] == State.UNSATISFIED
-                            || states[row][col] == State.NA) {
 
-                        rndIndex = rnd.nextInt(openList.size());
+            for (int i = 0; i < unsatisfiedPositions.size(); i++) {
+                rndIndex = rnd.nextInt(nonePositions.size());
+                rndRow = (int) nonePositions.get(rndIndex).getY();
+                rndCol = (int) nonePositions.get(rndIndex).getX();
 
-                        temp = matrix[row][col];
+                int row = (int) unsatisfiedPositions.get(i).getY();
+                int col = (int) unsatisfiedPositions.get(i).getX();
 
-                        int r = (int) openList.get(rndIndex).getY();
-                        int c = (int) openList.get(rndIndex).getX();
-                        matrix[row][col] = matrix[r][c];
+                //TODO Don't apply changes directly, save changes to a temp matrix
+                temp = matrix[row][col];
+                matrix[row][col] = matrix[rndRow][rndCol];
+                matrix[rndRow][rndCol] = temp;
 
-                        matrix[r][c] = temp;
-
-                        openList.remove(rndIndex);
-                        openList.add(new Point(col, row));
-                    }
-                }
+                nonePositions.remove(rndIndex);
+                nonePositions.add(new Point(col, row));
             }
         }
     }
@@ -118,37 +118,31 @@ public class Neighbours extends Application {
         State[][] states = new State[world.length][world.length]; //assuming the matrix is symmetrical
         for (int row = 0; row < states.length; row++) {
             for (int col = 0; col < states[row].length; col++) {
-//                System.out.println("Actor value: " + world[row][col]);
-//                System.out.println(Arrays.toString(getNeighbors(world, col, row)));
-//                System.out.println("Threshold: " + threshold);
                 states[row][col] = getState(getNeighbors(world, col, row), threshold, world[row][col]);
-//                System.out.println("Result state: " + states[row][col]);
-//                System.out.println("-");
             }
         }
         return states;
     }
 
-    //TODO see if this could be compressed
     private State getState(Actor[] neighbors, double threshold, Actor actor) {
-        int nSat, nUnsat, nRelevantNeighbors;
+        int nSameNeighbors, nDiffNeighbors, nRelevantNeighbors;
         double ratio;
         if (actor == Actor.NONE) {
             return State.NA;
         } else {
-            nSat = nUnsat = 0;
+            nSameNeighbors = nDiffNeighbors = 0;
             for (Actor a : neighbors) {
                 if (a == Actor.NONE) {
                     continue; //NONEs don't count
-                } else if (actor == Actor.BLUE && a == Actor.BLUE || actor == Actor.RED && a == Actor.RED) {
-                    nSat++;
+                } else if (actor == a) {
+                    nSameNeighbors++; //this is the amount of neighbors of the same "type" (Red or Blue)
                 } else {
-                    nUnsat++;
+                    nDiffNeighbors++;
                 }
             }
-            nRelevantNeighbors = nSat + nUnsat; //NONE neighbors are disregarded
-            ratio = (double) nSat / (double) nRelevantNeighbors;
-            if (nUnsat == 0 && nSat == 0 || ratio >= threshold) {
+            nRelevantNeighbors = nSameNeighbors + nDiffNeighbors; //NONE neighbors are disregarded
+            ratio = (double) nSameNeighbors / (double) nRelevantNeighbors;
+            if (nDiffNeighbors == 0 && nSameNeighbors == 0 || ratio >= threshold) {
                 return State.SATISFIED;
             } else {
                 return State.UNSATISFIED;
@@ -160,29 +154,18 @@ public class Neighbours extends Application {
     private Actor[] getNeighbors(Actor[][] world, int col, int row) {
         ArrayList<Actor> neighbors = new ArrayList();
         Actor[] result;
-        if (col - 1 >= 0) {
-            neighbors.add(world[row][col - 1]); //left
-            if (row + 1 < world.length) {
-                neighbors.add(world[row + 1][col - 1]); //down,left
+        int r, c;
+        for (int i = -1; i < 2; i++) {
+            r = row + i;
+            for (int j = -1; j < 2; j++) {
+                c = col + j;
+                if (i == 0 && j == 0) {
+                    continue; //r and c would be equal to row and col (same position as we're getting the neighbors for)
+                }
+                if (r >= 0 && c >= 0 && r < world.length && c < world[r].length) {
+                    neighbors.add(world[r][c]);
+                }
             }
-            if (row - 1 >= 0) {
-                neighbors.add(world[row - 1][col - 1]); //up, left
-            }
-        }
-        if (col + 1 < world[row].length) {
-            neighbors.add(world[row][col + 1]); //right
-            if (row - 1 >= 0) {
-                neighbors.add(world[row - 1][col + 1]); //up, right
-            }
-            if (row + 1 < world.length) {
-                neighbors.add(world[row + 1][col + 1]);  //down,right
-            }
-        }
-        if (row - 1 >= 0) {
-            neighbors.add(world[row - 1][col]); //up
-        }
-        if (row + 1 < world.length) {
-            neighbors.add(world[row + 1][col]); //down
         }
         result = new Actor[neighbors.size()];
         for (int i = 0; i < neighbors.size(); i++) {
@@ -220,93 +203,11 @@ public class Neighbours extends Application {
                 }
             }
         }
-//        System.out.println("World size: " + worldSize);
-//        System.out.println("maxRed:  " + maxRed + "  | nRed:  " + nRed);
-//        System.out.println("maxBlue: " + maxBlue + "  | nBlue: " + nBlue);
-//        System.out.println("maxNone: " + maxNone + "  | nNone: " + nNone);
-//        System.out.println("---");
         return result;
     }
 
-
-    // ------- Testing -------------------------------------
-
-    // Here you run your tests i.e. call your logic methods
-    // to see that they really work
-    private void test() {
-        double threshold = 0.875;
-        double[] dist = {0.49, 0.48, 0.01}; //Red, Blue & None
-        Actor[][] world = createWorld(dist, 100);
-
-        //Prints the world matrix two times, first time: raw, second time: shuffled
-        for (int a = 0; a < 2; a++) {
-            for (int i = 0; i < world.length; i++) {
-                for (int j = 0; j < world[i].length; j++) {
-//                    System.out.print(world[i][j] + " ");
-                    if (world[i][j] == Actor.RED) {
-                        System.out.print("R ");
-                    } else if (world[i][j] == Actor.BLUE) {
-                        System.out.print("B ");
-                    } else {
-                        System.out.print("_ ");
-                    }
-                }
-                System.out.println();
-            }
-            System.out.println("---");
-            shuffle(world);
-        }
-
-        //Checks whether the distribution is still correct
-        int r = 0, b = 0, n = 0;
-        for (int i = 0; i < world.length; i++) {
-            for (int j = 0; j < world[i].length; j++) {
-                if (world[i][j] == Actor.RED) {
-                    r++;
-                } else if (world[i][j] == Actor.BLUE) {
-                    b++;
-                } else if (world[i][j] == Actor.NONE) {
-                    n++;
-                }
-            }
-        }
-        System.out.println("(After shuffle)");
-        System.out.println("Reds:  " + r);
-        System.out.println("Blues: " + b);
-        System.out.println("Nones: " + n);
-        System.out.println("---");
-
-        //Prints the state of all of the actors in the world
-        State[][] states = getStates(world, threshold);
-        for (int row = 0; row < states.length; row++) {
-            for (int col = 0; col < states[row].length; col++) {
-                if (states[row][col] == State.UNSATISFIED) {
-                    System.out.print("U ");
-                } else if (states[row][col] == State.SATISFIED) {
-                    System.out.print("S ");
-                } else if (states[row][col] == State.NA) {
-                    System.out.print("_ ");
-                }
-            }
-            System.out.println();
-        }
-
-        System.exit(0);
-    }
-
-//    // Helper method for testing (NOTE: reference equality)
-//    private <T> int count(T[] arr, T toFind) {
-//        int count = 0;
-//        for (int i = 0; i < arr.length; i++) {
-//            if (arr[i] == toFind) {
-//                count++;
-//            }
-//        }
-//        return count;
-//    }
-
     private void calculateDotSize(int nLocations) {
-        dotSize = (width - 2 /** margn*/) / Math.sqrt(nLocations);
+        dotSize = (width - 2) / Math.sqrt(nLocations);
         if (dotSize < 1) {
             dotSize = 2;
         }
@@ -314,15 +215,18 @@ public class Neighbours extends Application {
 
     @Override
     public void start(Stage primaryStage) {
+        Group root;
+        Canvas canvas;
+        GraphicsContext gc;
+        AnimationTimer timer;
+        Scene scene;
 
-        // Build a scene graph
-        Group root = new Group();
-        Canvas canvas = new Canvas(width, height);
+        root = new Group();
+        canvas = new Canvas(width - (dotSize / 2), height - (dotSize / 2)); //minor offset to fix window size mismatch
         root.getChildren().addAll(canvas);
-        GraphicsContext gc = canvas.getGraphicsContext2D();
+        gc = canvas.getGraphicsContext2D();
 
-        // Create a timer
-        AnimationTimer timer = new AnimationTimer() {
+        timer = new AnimationTimer() {
             // This method called by FX, parameter is the current time
             public void handle(long currentNanoTime) {
                 long elapsedNanos = currentNanoTime - previousTime;
@@ -334,28 +238,28 @@ public class Neighbours extends Application {
             }
         };
 
-        Scene scene = new Scene(root);
+        scene = new Scene(root);
         primaryStage.setScene(scene);
-        primaryStage.setTitle("Simulation");
+        primaryStage.setTitle("Segregation");
         primaryStage.show();
 
         timer.start();  // Start simulation
     }
 
     // Render the state of the world to the screen
-    private void renderWorld(GraphicsContext g, Actor[][] world) {
+    private void renderWorld(GraphicsContext g, Actor[][] matrix) {
         double x, y;
         g.clearRect(0, 0, width, height);
-        for (int row = 0; row < world.length; row++) {
-            for (int col = 0; col < world[row].length; col++) {
-                x = dotSize * col /*+ margin*/;
-                y = dotSize * row /*+ margin*/;
-                if (world[row][col] == Actor.RED) {
+        for (int row = 0; row < matrix.length; row++) {
+            for (int col = 0; col < matrix[row].length; col++) {
+                x = dotSize * col;
+                y = dotSize * row;
+                if (matrix[row][col] == Actor.RED) {
                     g.setFill(Color.RED);
-                } else if (world[row][col] == Actor.BLUE) {
+                } else if (matrix[row][col] == Actor.BLUE) {
                     g.setFill(Color.BLUE);
-                } else {
-                    continue; //don't draw NONEs
+                } else if (matrix[row][col] == Actor.NONE) {
+                    continue; //don't draw NONEs (as they have the same color as the background)
                 }
                 g.fillRect(x, y, dotSize, dotSize);
             }
