@@ -56,11 +56,13 @@ public class Neighbours extends Application {
         Random rnd;
         Actor temp;
         ArrayList<Point> nonePositions, unsatisfiedPositions;
+//        Actor[][] tempMatrix;
         int rndIndex, rndRow, rndCol;
 
         if (matrix != null && states != null) {
             nonePositions = new ArrayList();
             unsatisfiedPositions = new ArrayList();
+//            tempMatrix = new Actor[matrix.length][matrix.length];
             rnd = new Random();
 
             //Retrieves the positions of all NONE and UNSATISFIED actors
@@ -72,26 +74,35 @@ public class Neighbours extends Application {
                     if (states[row][col] == State.UNSATISFIED) {
                         unsatisfiedPositions.add(new Point(col, row));
                     }
+//                    tempMatrix[row][col] = matrix[row][col];
                 }
             }
 
             for (int i = 0; i < unsatisfiedPositions.size(); i++) {
-                rndIndex = rnd.nextInt(nonePositions.size());
-                rndRow = (int) nonePositions.get(rndIndex).getY();
-                rndCol = (int) nonePositions.get(rndIndex).getX();
+                if (nonePositions.size() > 0) {
+                    rndIndex = rnd.nextInt(nonePositions.size());
+                    rndRow = (int) nonePositions.get(rndIndex).getY();
+                    rndCol = (int) nonePositions.get(rndIndex).getX();
 
-                int row = (int) unsatisfiedPositions.get(i).getY();
-                int col = (int) unsatisfiedPositions.get(i).getX();
+                    int row = (int) unsatisfiedPositions.get(i).getY();
+                    int col = (int) unsatisfiedPositions.get(i).getX();
 
-                //TODO Don't apply changes directly, save changes to a temp matrix
-                temp = matrix[row][col];
-                matrix[row][col] = matrix[rndRow][rndCol];
-                matrix[rndRow][rndCol] = temp;
 
-                nonePositions.remove(rndIndex);
-                nonePositions.add(new Point(col, row));
+                    temp = matrix[row][col];
+                    matrix[row][col] = matrix[rndRow][rndCol];
+                    matrix[rndRow][rndCol] = temp;
+
+//                    temp = tempMatrix[row][col];
+//                    tempMatrix[row][col] = tempMatrix[rndRow][rndCol];
+//                    tempMatrix[rndRow][rndCol] = temp;
+
+                    nonePositions.remove(rndIndex);
+                    nonePositions.add(new Point(col, row));
+                }
             }
+//            return tempMatrix;
         }
+//        return null;
     }
 
     private void shuffle(Actor[][] matrix) {
