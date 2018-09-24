@@ -1,8 +1,11 @@
 import static java.lang.Math.sqrt;
 import static java.lang.System.exit;
 import static java.lang.System.nanoTime;
+
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.Random;
+
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.scene.Group;
@@ -37,7 +40,7 @@ public class Neighbours extends Application {
     // Below is the *only* accepted instance variable (i.e. variables outside any method)
     // This variable may *only* be used in methods init() and updateWorld()
     private double width = 800, height = 800; // Size for window
-    private final long interval = 450_000_000;
+    private final long interval = 5_000_000;
     private long previousTime = nanoTime();
     private final double margin = 50;
     private double dotSize;
@@ -55,44 +58,61 @@ public class Neighbours extends Application {
         //test();    // <---------------- Uncomment to TEST!
 
         // %-distribution of RED, BLUE and NONE
-        double[] dist = {0.25, 0.25, 0.50};
+        double[] dist = {0.45, 0.45, 0.10};
         // Number of locations (places) in world (square)
         int nLocations = 90_000;
-        world = createWorld(dist,nLocations);
+        world = createWorld(dist, nLocations);
         shuffle(world);
 
         // Should be last
         fixScreenSize(nLocations);
     }
 
+
     // This is the method called by the timer to update the world
     // (i.e move unsatisfied) approx each 1/60 sec.
     private void updateWorld() {
-        final double threshold = 0.7; // % of surrounding neighbours that are like me
-        State[][] states = getStates(world,threshold);
-        ArrayList<Actor> moving = new ArrayList();
-        Random rand = new Random();
-        int temp;
+        Point pUnRnB[] = new Point[world.length * world[0].length];
+        Point pNone[] = new Point[world.length * world[0].length];
+        int nNone = 0, nUnRnB = 0;
+        State[][] states = getStates(world, 0.7);
+        Random rnd = new Random();
+        int randomN, temp;
 
-        //TODO copied matrix, logic stuff
-        for (int row = 0; row < world.length; row++) {
-            for (int col = 0; col < world[row].length; col++) {
-                if(states[row][col]==State.NA||states[row][col]==State.UNSATISFIED)
-                    moving.add(world[row][col]);
-            }
-        }
-
-        for (int row = 0; row < world.length; row++) {
-            for (int col = 0; col < world[row].length; col++) {
-                if(states[row][col]==State.NA||states[row][col]==State.UNSATISFIED)
-                {
-                    temp = rand.nextInt(moving.size());
-                    world[row][col]=moving.get(temp);
-                    moving.remove(temp);
+        for (int i = 0; i < states.length; i++)
+            for (int k = 0; k < states[i].length; k++) {
+                switch (states[i][k]) {
+                    case SATISFIED:
+                        continue;
+                    case UNSATISFIED:
+                        pUnRnB[nUnRnB] = new Point();
+                        pUnRnB[nUnRnB].x = k;
+                        pUnRnB[nUnRnB++].y = i;
+                        break;
+                    case NA:
+                        pNone[nNone] = new Point();
+                        pNone[nNone].x = k;
+                        pNone[nNone++].y = i;
+                        break;
                 }
-
             }
+
+        for(int i=0; i < nUnRnB; i++)
+        {
+            randomN = rnd.nextInt(nNone);
+
+            world[pNone[randomN].y][pNone[randomN].x] = world[pUnRnB[i].y][pUnRnB[i].x];
+            world[pUnRnB[i].y][pUnRnB[i].x] = Actor.NONE;
+
+            temp = pUnRnB[i].x;
+            pUnRnB[i].x = pNone[randomN].x;
+            pNone[randomN].x = temp;
+
+            temp = pUnRnB[i].y;
+            pUnRnB[i].y = pNone[randomN].y;
+            pNone[randomN].y = temp;
         }
+
     }
 
 
@@ -117,20 +137,6 @@ public class Neighbours extends Application {
             }
         }
     }
-
-    //returns a matrix that displays the current state of each actor in the parameter world
-    //TODO: this method might "work", but we should use the enum for State instead
-    /*private boolean[][] getStates(Actor[][] world, double threshold) {
-        boolean[][] result = new boolean[world.length][world.length]; //assuming the matrix is symmetrical
-        for (int row = 0; row < result.length; row++)
-            for (int col = 0; col < result[row].length; col++)
-                if (isSatisfied(getNeighbors(world, col, row), threshold, world[row][col])) {
-                    result[row][col] = true;
-                } else {
-                    result[row][col] = false;
-                }
-        return result;
-    }*/
 
     //TODO test this method
     private State[][] getStates(Actor[][] world, double threshold) {
@@ -328,7 +334,7 @@ public class Neighbours extends Application {
                 } else if (world[row][col] == Actor.BLUE) {
                     g.setFill(Color.BLUE);
                 } else {
-                    g.setFill(Color.WHITE);
+                    continue;
                 }
                 g.fillOval(x, y, dotSize, dotSize);
             }
