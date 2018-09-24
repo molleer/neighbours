@@ -42,7 +42,7 @@ public class Neighbours extends Application {
     private double width = 800, height = 800; // Size for window
     private final long interval = 5_000_000;
     private long previousTime = nanoTime();
-    private final double margin = 50;
+    private final double margin = 0;
     private double dotSize;
     private Actor[][] world;
 
