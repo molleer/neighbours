@@ -336,7 +336,7 @@ public class Neighbours extends Application {
                 } else {
                     continue;
                 }
-                g.fillOval(x, y, dotSize, dotSize);
+                g.fillRect(x, y, dotSize, dotSize);
             }
         }
     }
