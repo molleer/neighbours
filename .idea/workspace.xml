@@ -78,11 +78,11 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/Neighbours.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="379">
-              <caret line="151" column="59" lean-forward="true" selection-start-line="151" selection-start-column="59" selection-end-line="151" selection-end-column="59" />
+            <state relative-caret-position="585">
+              <caret line="72" selection-start-line="72" selection-end-line="116" />
               <folding>
-                <element signature="e#10568#11004#0" expanded="true" />
-                <element signature="e#11003#11004#0" expanded="true" />
+                <element signature="e#10539#10975#0" expanded="true" />
+                <element signature="e#10974#10975#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -120,7 +120,7 @@
     <detection-done>true</detection-done>
     <sorting>DEFINITION_ORDER</sorting>
   </component>
-  <component name="ProjectFrameBounds" extendedState="6">
+  <component name="ProjectFrameBounds" extendedState="7">
     <option name="x" value="147" />
     <option name="y" value="9" />
     <option name="width" value="1101" />
@@ -223,7 +223,7 @@
     <option name="totallyTimeSpent" value="4134000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-7" y="-7" width="1295" height="695" extended-state="6" />
+    <frame x="-7" y="-7" width="1295" height="695" extended-state="7" />
     <editor active="true" />
     <layout>
       <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.16644295" />
@@ -274,11 +274,11 @@
     <entry file="file://$USER_HOME$/Google Drive/Chalmers/Grundläggande programvaruutveckling/week2/src/exercises/Ex5GameOfLife.java" />
     <entry file="file://$PROJECT_DIR$/src/Neighbours.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="379">
-          <caret line="151" column="59" lean-forward="true" selection-start-line="151" selection-start-column="59" selection-end-line="151" selection-end-column="59" />
+        <state relative-caret-position="585">
+          <caret line="72" selection-start-line="72" selection-end-line="116" />
           <folding>
-            <element signature="e#10568#11004#0" expanded="true" />
-            <element signature="e#11003#11004#0" expanded="true" />
+            <element signature="e#10539#10975#0" expanded="true" />
+            <element signature="e#10974#10975#0" expanded="true" />
           </folding>
         </state>
       </provider>
