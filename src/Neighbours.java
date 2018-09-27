@@ -27,7 +27,7 @@ public class Neighbours extends Application {
 
     private final long interval = 32_000_000;
     private long previousTime = System.nanoTime();
-    private final double width = 400, height = 400;
+    private final double width = 400, height = 400; //400x400
     private double dotSize;
     private Actor[][] world;
 
@@ -38,7 +38,7 @@ public class Neighbours extends Application {
     // This method initializes the world variable with a random distribution of Actors
     @Override
     public void init() {
-        double[] dist = {0.5, 0.3, 0.2}; // %-distribution of RED, BLUE and NONE
+        double[] dist = {0.45, 0.45, 0.10}; // %-distribution of RED, BLUE and NONE
         int nLocations = 90_000;  // Number of positions in world
         world = createWorld(dist, nLocations);
         shuffle(world);
