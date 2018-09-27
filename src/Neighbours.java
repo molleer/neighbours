@@ -31,6 +31,8 @@ public class Neighbours extends Application {
     private double dotSize;
     private Actor[][] world;
 
+    private long start, end;
+
     public static void main(String[] args) {
         launch(args);
     }
@@ -43,6 +45,7 @@ public class Neighbours extends Application {
         world = createWorld(dist, nLocations);
         shuffle(world);
         calculateDotSize(nLocations);
+        start = System.nanoTime();
     }
 
     // This is the method called by the timer to update the world
@@ -92,6 +95,13 @@ public class Neighbours extends Application {
                     nonePositions.remove(rndIndex);
                     nonePositions.add(new Point(col, row));
                 }
+            }
+
+            if (unsatisfiedPositions.size() == 0) {
+                end = System.nanoTime();
+                long diff = end - start;
+                System.out.println("The simulation took " + ((double) diff / 1_000_000_000) + " seconds!");
+                System.exit(0);
             }
         }
     }
