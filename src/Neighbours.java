@@ -39,8 +39,8 @@ public class Neighbours extends Application {
 
     // Below is the *only* accepted instance variable (i.e. variables outside any method)
     // This variable may *only* be used in methods init() and updateWorld()
-    private double width = 800, height = 800; // Size for window
-    private final long interval = 5_000_000;
+    private double width = 400, height = 400; // Size for window
+    private final long interval = 32_000_000;
     private long previousTime = nanoTime();
     private final double margin = 0;
     private double dotSize;
@@ -66,6 +66,7 @@ public class Neighbours extends Application {
 
         // Should be last
         fixScreenSize(nLocations);
+
     }
 
 
@@ -75,7 +76,7 @@ public class Neighbours extends Application {
         Point pUnRnB[] = new Point[world.length * world[0].length];
         Point pNone[] = new Point[world.length * world[0].length];
         int nNone = 0, nUnRnB = 0;
-        State[][] states = getStates(world, 0.7);
+        State[][] states = getStates(world, 0.75);
         Random rnd = new Random();
         int randomN, temp;
 
@@ -97,8 +98,7 @@ public class Neighbours extends Application {
                 }
             }
 
-        for(int i=0; i < nUnRnB; i++)
-        {
+        for (int i = 0; i < nUnRnB; i++) {
             randomN = rnd.nextInt(nNone);
 
             world[pNone[randomN].y][pNone[randomN].x] = world[pUnRnB[i].y][pUnRnB[i].x];
@@ -138,7 +138,7 @@ public class Neighbours extends Application {
         }
     }
 
-    //TODO test this method
+
     private State[][] getStates(Actor[][] world, double threshold) {
         boolean isSatisfied;
         State[][] result = new State[world.length][world.length]; //assuming the matrix is symmetrical
