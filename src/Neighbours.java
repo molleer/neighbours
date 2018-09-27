@@ -1,5 +1,6 @@
 import java.awt.Point;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
@@ -24,7 +25,7 @@ public class Neighbours extends Application {
         UNSATISFIED, SATISFIED, NA // Not applicable (NA), used for NONEs
     }
 
-    private final long interval = 200_000_000;
+    private final long interval = 32_000_000;
     private long previousTime = System.nanoTime();
     private final double width = 400, height = 400;
     private double dotSize;
@@ -37,7 +38,7 @@ public class Neighbours extends Application {
     // This method initializes the world variable with a random distribution of Actors
     @Override
     public void init() {
-        double[] dist = {0.50, 0.30, 0.20}; // %-distribution of RED, BLUE and NONE
+        double[] dist = {0.5, 0.3, 0.2}; // %-distribution of RED, BLUE and NONE
         int nLocations = 90_000;  // Number of positions in world
         world = createWorld(dist, nLocations);
         shuffle(world);
@@ -55,14 +56,12 @@ public class Neighbours extends Application {
     private void shuffleUnsatisfied(Actor[][] matrix, State[][] states) {
         Random rnd;
         Actor temp;
-        ArrayList<Point> nonePositions, unsatisfiedPositions;
-//        Actor[][] tempMatrix;
+        List<Point> nonePositions, unsatisfiedPositions;
         int rndIndex, rndRow, rndCol;
 
         if (matrix != null && states != null) {
-            nonePositions = new ArrayList();
-            unsatisfiedPositions = new ArrayList();
-//            tempMatrix = new Actor[matrix.length][matrix.length];
+            nonePositions = new ArrayList<>();
+            unsatisfiedPositions = new ArrayList<>();
             rnd = new Random();
 
             //Retrieves the positions of all NONE and UNSATISFIED actors
@@ -74,7 +73,6 @@ public class Neighbours extends Application {
                     if (states[row][col] == State.UNSATISFIED) {
                         unsatisfiedPositions.add(new Point(col, row));
                     }
-//                    tempMatrix[row][col] = matrix[row][col];
                 }
             }
 
@@ -87,22 +85,15 @@ public class Neighbours extends Application {
                     int row = (int) unsatisfiedPositions.get(i).getY();
                     int col = (int) unsatisfiedPositions.get(i).getX();
 
-
                     temp = matrix[row][col];
                     matrix[row][col] = matrix[rndRow][rndCol];
                     matrix[rndRow][rndCol] = temp;
-
-//                    temp = tempMatrix[row][col];
-//                    tempMatrix[row][col] = tempMatrix[rndRow][rndCol];
-//                    tempMatrix[rndRow][rndCol] = temp;
 
                     nonePositions.remove(rndIndex);
                     nonePositions.add(new Point(col, row));
                 }
             }
-//            return tempMatrix;
         }
-//        return null;
     }
 
     private void shuffle(Actor[][] matrix) {
@@ -163,7 +154,7 @@ public class Neighbours extends Application {
 
     //Returns the neighbors of the actor at the specified coordinates as an array
     private Actor[] getNeighbors(Actor[][] world, int col, int row) {
-        ArrayList<Actor> neighbors = new ArrayList();
+        List<Actor> neighbors = new ArrayList();
         Actor[] result;
         int r, c;
         for (int i = -1; i < 2; i++) {
